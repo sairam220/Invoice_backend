@@ -1,25 +1,37 @@
-const express = require("express")
+const express = require('express');
+const cors = require('cors');
 const app = express();
+const PORT = 5001; // You can use any available port number
 
-const bodyParser = require("body-parser")
-const {mongoose} = require("./db/db");
+app.use(cors());
+app.use(express.json());
 
-const userController = require("./controllers/userController")
-const customerController = require("./controllers/customerController")
-const itemController = require("./controllers/itemController")
-const invoiceController = require("./controllers/invoiceController")
-const paymentController = require("./controllers/paymentController")
+// Dummy storage to store invoice data (Replace this with a proper database in a real scenario)
+const invoices = [];
 
-app.use(bodyParser.urlencoded({encoded: false}));
-app.use(bodyParser.json());
-app.engine('html', require('ejs').renderFile)
+// API endpoint to add an invoice
+app.post('/api/add_invoice', (req, res) => {
+  try {
+    const { invoicedate, invoicenumber, invoiceamount } = req.body;
 
-app.use("/user", userController)
-app.use("/customer", customerController)
-app.use("/item", itemController)
-app.use("/invoice", invoiceController)
-app.use("/payment", paymentController)
+    // Perform any desired validation on the parameters
+    if (!invoicedate || !invoicenumber || !invoiceamount) {
+      return res.status(400).json({ error: 'All parameters are required' });
+    }
 
-app.listen(3333, () => {
-    console.log("server running on port:3333")
-})
+    // Save the invoice data (For demonstration purposes, we store it in memory)
+    invoices.push({
+      invoicedate,
+      invoicenumber,
+      invoiceamount,
+    });
+
+    return res.status(200).json({ message: 'Invoice added successfully' });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
